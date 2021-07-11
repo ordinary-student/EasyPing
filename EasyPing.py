@@ -15,8 +15,8 @@ from PySide2.QtCore import Qt
 appname = '''EasyPing'''
 appmessage = '''检测局域网内IP地址的使用情况'''
 author = '''ordinary-student'''
-version = '''v4.0.0'''
-last_update = '''2021-06-28'''
+version = '''v4.0.1'''
+last_update = '''2021-07-12'''
 
 
 class EasyPing(QMainWindow):
@@ -31,7 +31,7 @@ class EasyPing(QMainWindow):
         # 加载界面ui
         self.initUI()
         # Ping请求数
-        self.ping_num = 3
+        self.ping_count = 3
         # 连接信号槽
         self._ping_signal.connect(self.set_ui)
 
@@ -166,7 +166,7 @@ class EasyPing(QMainWindow):
         '''关于'''
         # 显示弹窗
         QMessageBox.about(self, f'关于{appname}',
-                          "{}<br>{}<br>author：<a href='https://github.com/ordinary-student'>{}</a><br>版本：{}<br>Last-Update：{}<br>© Copyright {}".format(appname, appmessage, author, version, last_update, last_update[0:4]))
+                          "{}<br>{}<br>author：<a href='https://github.com/ordinary-student'>{}</a><br>版本：{}<br>Last-Update：{}".format(appname, appmessage, author, version, last_update))
 
     def is_ip_legal(self, ip: str) -> bool:
         '''检测IP是否合法'''
@@ -196,9 +196,9 @@ class EasyPing(QMainWindow):
     def ping_setting(self):
         '''设置Ping请求数'''
         num, ok = QInputDialog.getInt(
-            self, '设置', '输入Ping请求数：', self.ping_num, 1, 100, 1)
+            self, '设置', '输入Ping请求数：', self.ping_count, 1, 100, 1)
         if ok:
-            self.ping_num = num
+            self.ping_count = num
 
     def reset_ui(self):
         ''' 初始化窗口IP窗格为灰色背景 '''
@@ -245,7 +245,7 @@ class EasyPing(QMainWindow):
     def is_ip_online(self, ip: str):
         '''检测IP是否在线'''
         # 命令
-        cmd = "ping {} -n {} -w 600".format(ip, self.ping_num)
+        cmd = "ping {} -n {} -w 600".format(ip, self.ping_count)
         # 执行命令
         result, error = self.popen(cmd)
         # 判断结果
