@@ -15,7 +15,7 @@ from PySide2.QtCore import Qt
 appname = '''EasyPing'''
 appmessage = '''检测局域网内IP地址的使用情况'''
 author = '''ordinary-student'''
-version = '''v4.0.1'''
+version = '''v4.1.0'''
 last_update = '''2021-07-12'''
 
 
@@ -37,11 +37,12 @@ class EasyPing(QMainWindow):
 
     def initUI(self):
         '''加载界面ui'''
-        # 获取本地IP
-        self.hostname = socket.gethostname()
-        self.localip = socket.gethostbyname(self.hostname)
+        # 多网卡情况下获取本地IP
+        ips = socket.gethostbyname_ex(socket.gethostname())[2]
+        # 最后一个IP，一般为无线网卡IP
+        self.localip = ips[-1]
         # 窗口标题
-        self.setWindowTitle('EasyPing--'+self.localip)
+        self.setWindowTitle('EasyPing--'+str(ips))
         # 设置窗口图标
         self.setWindowIcon(self.generateIcon())
         # 窗口大小
