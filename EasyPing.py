@@ -5,9 +5,10 @@ from threading import Thread
 import random
 import subprocess
 import socket
+from collections import Counter
 from PySide2.QtGui import QColor, QFont, QIcon, QKeySequence, QPixmap
 from PySide2.QtCore import Signal
-from PySide2.QtWidgets import QApplication,  QGridLayout, QGroupBox, QInputDialog, QLabel, QLineEdit, QMainWindow, QMessageBox, QPushButton, QStyleFactory,  QVBoxLayout
+from PySide2.QtWidgets import QApplication,  QGridLayout, QGroupBox, QInputDialog, QLabel, QLineEdit, QMainWindow, QMessageBox, QPushButton, QStatusBar, QStyleFactory,  QVBoxLayout
 from PySide2.QtWidgets import QWidget
 from PySide2.QtWidgets import QHBoxLayout
 from PySide2.QtCore import Qt
@@ -15,8 +16,8 @@ from PySide2.QtCore import Qt
 appname = '''EasyPing'''
 appmessage = '''检测局域网内IP地址的使用情况'''
 author = '''ordinary-student'''
-version = '''v4.1.0'''
-last_update = '''2021-07-12'''
+version = '''v4.2.0'''
+last_update = '''2021-07-31'''
 
 
 class EasyPing(QMainWindow):
@@ -117,6 +118,8 @@ class EasyPing(QMainWindow):
         self.gridLayout_ip.setSpacing(5)
         # IP标签列表
         self.iplabel_list = []
+        # 结果列表
+        self.result_list = []
         # 索引
         list_index = 0
         # 循环添加
@@ -145,6 +148,13 @@ class EasyPing(QMainWindow):
 
         # 设置中央容器
         self.setCentralWidget(self.widget_easyping)
+
+        # 状态栏
+        self.statusbar = QStatusBar(self)
+        self.statusbar.setStyleSheet("color:white;background-color:#007ACC;")
+        # 设置字体和大小
+        self.statusbar.setFont(QFont("楷体", 12))
+        self.setStatusBar(self.statusbar)
 
     def generateIcon(self) -> QIcon:
         '''生成图标'''
@@ -191,8 +201,10 @@ class EasyPing(QMainWindow):
             endip = '.'.join(ip_list)
             # 填写
             self.lineEdit_endIP.setText(endip)
+            self.statusbar.showMessage('')
         else:
             self.lineEdit_endIP.setText('')
+            self.statusbar.showMessage('IP地址不合法！')
 
     def ping_setting(self):
         '''设置Ping请求数'''
@@ -208,6 +220,8 @@ class EasyPing(QMainWindow):
 
     def set_ui(self, result: bool, ip: str):
         '''设置窗口颜色 result：线程ping的结果 ip：对应的IP地址'''
+        # 添加检测结果
+        self.result_list.append(result)
         # 获取索引
         index = int(ip.split('.')[3])
         # 判断结果
@@ -219,6 +233,9 @@ class EasyPing(QMainWindow):
             # 设置背景为红色
             self.iplabel_list[index].setStyleSheet(
                 "background-color: rgb(255, 142, 119);")
+        # 统计结果
+        frequency = Counter(self.result_list)
+        self.statusbar.showMessage(str(frequency))
 
     def popen(self, cmd: str) -> tuple[str, str]:
         '''执行系统命令'''
@@ -265,6 +282,8 @@ class EasyPing(QMainWindow):
 
     def start_ping(self):
         '''开始Ping检测'''
+        self.result_list = []
+        self.statusbar.showMessage('检测中...')
         # 获取IP
         startip_str = self.lineEdit_startIP.text()
         endip_str = self.lineEdit_endIP.text()
